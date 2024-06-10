@@ -1,0 +1,947 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct node
+{
+    int patient_id; // Id of the patient
+    char patient_name[100];  // Name of the patient
+    int patient_age; // Age of the patient
+    float patient_height;  // Height of the patient
+    float patient_weight;  // Weight of the patient
+    char patient_gender[2];  // Gender of the patient
+    char patient_bloodgroup[20];  // Blood group of the patient
+    int doctor_id;  // Id of the doctor
+    char doctor_name[50];  // Name of the doctor
+    char doctor_gender[2];  // Gender of the doctor
+    char doctor_spec[20];  // Specification of the doctor
+    int patient_sno;  // Serial number to know which patient is first in the appointment column
+    char name[20];  // Name of the patient for the appointment column.
+    char phone_number[15]; // Phone number of the patient for the appointment column.
+    char blood_group[20];  // Blood group of the patient for the appointment column.
+    char describe[50];   // Illness description of the patient.
+    struct node *next;    // next is the pointer variable to get the address of the next element.
+};
+
+struct node *head = NULL; // Initially taking head pointer as NULL.
+
+// Creating the node for patient details
+struct node *create_patient_details(int patient_id, char patient_name[20], int patient_age, float patient_height, float patient_weight, char patient_gender[2], char patient_bloodgroup[20])
+{
+    struct node *patient_node = (struct node*)malloc(sizeof(struct node));  // Allocating memory to the pointer variable patient node.
+
+    if(patient_node == NULL)  // If no value is assign to the patient node.
+    {
+        printf("The patient details are not entered the values of the patient_details are null so memory can't be allocated.");
+        return NULL;
+    }
+
+    patient_node->patient_id = patient_id; // Adding the patient id to the patient node.
+    strcpy(patient_node->patient_name, patient_name);  // Adding the patient name to patient node.
+    patient_node->patient_age = patient_age;  // Adding the patient age to patient node.
+    patient_node->patient_height = patient_height;  // Adding the patient height to patient node.
+    patient_node->patient_weight = patient_weight;  // Adding the patient weight to patient node.
+    strcpy(patient_node->patient_gender, patient_gender);  // Adding the patient gender to patient node.
+    strcpy(patient_node->patient_bloodgroup, patient_bloodgroup);  // Adding the patient blood group to patient node.
+
+    return patient_node;
+}
+
+struct node *create_doctor_details(int doctor_id, char doctor_name[20], char doctor_gender[2], char doctor_spec[20])
+{
+    struct node *doctor_node = (struct node*)malloc(sizeof(struct node));  // Allocating memory to the pointer variable doctor node.
+
+    if(doctor_node == NULL)  // If no value is assign to the doctor node
+    {
+        printf("The doctor details are not entered the values of the doctor_details are null so memory can't be allocated.");
+        return NULL;
+    }
+
+    doctor_node->doctor_id = doctor_id;  // Adding the doctor id to the doctor node.
+    strcpy(doctor_node->doctor_name, doctor_name);  // Adding the doctor name to doctor node.
+    strcpy(doctor_node->doctor_gender, doctor_gender);  // Adding the doctor gender to doctor node.
+    strcpy(doctor_node->doctor_spec, doctor_spec);  // Adding the doctor specification to doctor node.
+
+    return doctor_node;
+}
+
+// Patient details (Using Circular Queue)
+// Inserting the patient details at the beginning.
+void insert_at_beginning_patient_details(int patient_id, char patient_name[20], int patient_age, float patient_height, float patient_weight, char patient_gender[2], char patient_bloodgroup[20])
+{
+    struct node *patient_node = create_patient_details(patient_id, patient_name, patient_age, patient_height, patient_weight, patient_gender, patient_bloodgroup);
+
+    if(patient_node != NULL)
+    {
+        struct node *last = head;
+
+        if(head == NULL)
+        {
+            head = patient_node;
+            patient_node->next = head;
+            return;
+        }
+
+        while(last->next != head)
+        {
+            last = last->next;
+        }
+        last->next = patient_node;
+        patient_node->next = head;
+        head = patient_node;
+    }
+}
+// // Inserting the patient details at the ending.
+void insert_at_end_patient_details(int patient_id, char patient_name[20], int patient_age, float patient_height, float patient_weight, char patient_gender[2], char patient_bloodgroup[20])
+{
+    struct node *patient_node = create_patient_details(patient_id, patient_name, patient_age, patient_height, patient_weight, patient_gender, patient_bloodgroup);
+
+    if(patient_node != NULL)
+    {
+        if(head == NULL)
+        {
+            head = patient_node;
+            patient_node->next = head;
+            return;
+        }
+        struct node *last = head;
+
+        while(last->next != head)
+        {
+            last = last->next;
+        }
+        last->next = patient_node;
+        patient_node->next = head;
+    }
+}
+// // Inserting the patient details node after some other patient details node.
+void insert_after_some_node_patient_details(int patient_id, char patient_name[20], int patient_age, float patient_height, float patient_weight, char patient_gender[2], char patient_bloodgroup[20], int position)
+{
+    struct node *patient_node = NULL;
+    patient_node = create_patient_details(patient_id, patient_name, patient_age, patient_height, patient_weight, patient_gender, patient_bloodgroup);
+
+    if(patient_node != NULL)
+    {
+        if(head == NULL)
+        {
+            insert_at_beginning_patient_details(patient_id, patient_name, patient_age, patient_height, patient_weight, patient_gender, patient_bloodgroup);
+        }
+        else
+        {
+            struct node* temp = head;
+
+            while(temp->patient_id != position && temp!=NULL)
+            {
+                temp = temp->next;
+            }
+            if(temp == NULL)
+            {
+                printf("\nSorry! couldn't found the patient details node. Cannot insert another patient node.\n");
+            }
+            else
+            {
+                patient_node->next = temp->next;
+                temp->next = patient_node;
+            }
+        }
+    }
+}
+// Inserting the patient details node before some other patient details node.
+void insert_before_some_node_patient_details(int patient_id, char patient_name[20], int patient_age, float patient_height, float patient_weight, char patient_gender[2], char patient_bloodgroup[20], int position)
+{
+    struct node *patient_node = NULL;
+    patient_node = create_patient_details(patient_id, patient_name, patient_age, patient_height, patient_weight, patient_gender, patient_bloodgroup);
+
+    if(patient_node != NULL)
+    {
+        if(head == NULL)
+        {
+            insert_at_beginning_patient_details(patient_id, patient_name, patient_age, patient_height, patient_weight, patient_gender, patient_bloodgroup);
+        }
+        else
+        {
+            struct node* temp = head;
+            struct node* prev = NULL;
+
+            while(temp->patient_id != position && temp!=NULL)
+            {
+                prev = temp;
+                temp = temp->next;
+            }
+            if(temp == NULL)
+            {
+                printf("\nSorry! couldn't found the patient details node. Cannot insert another patient node.\n");
+            }
+            else
+            {
+                prev->next = patient_node;
+                patient_node->next = temp;
+            }
+        }
+    }
+}
+// Deleting the patient details at the beginning.
+void delete_at_beginning_patient_details()
+{
+    if(head == NULL)
+    {
+        printf("\nThere are no patient details are present.\n");
+        return;
+    }
+    struct node *last = head;
+    struct node *temp = head;
+
+    if(last->next == head)
+    {
+        free(last);
+        head = NULL;
+        return;
+    }
+
+    while(last->next != head)
+    {
+        last = last->next;
+    }
+    head = head->next;
+    last->next = head;
+
+    free(temp);
+    temp = NULL;
+}
+// Deleting the patient details at the ending.
+void delete_at_end_patient_details()
+{
+    if(head == NULL)
+    {
+        printf("\nThere are no patient details are present.\n");
+        return;
+    }
+    struct node *prev = head;
+    struct node *temp = head->next;
+
+    if(prev->next == head)
+    {
+        free(prev);
+        head = NULL;
+        return;
+    }
+
+    while(temp->next != head)
+    {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    prev->next = head;
+
+    free(temp);
+    temp = NULL;
+}
+// Deleting the patient details node after some other patient details node.
+void delete_after_some_node_patient_details(int position)
+{
+    if(head == NULL)
+    {
+        printf("\nThere are no patient details are present.\n");
+        return;
+    }
+    else
+    {
+        struct node *temp = head;
+        struct node *prev = NULL;
+
+        while(temp->patient_id != position && temp!=NULL)
+        {
+            prev = temp;
+            temp = temp->next;
+        }
+        if(temp == NULL || prev == NULL)
+        {
+            printf("\nSorry cannot delete the patient details.\n");
+        }
+        else
+        {
+            prev = temp;
+            temp = temp->next;
+            prev->next = temp == NULL?NULL : temp->next;
+            free(temp);
+        }
+    }
+}
+// Deleting the patient details node before some other patient details node.
+void delete_before_some_node_patient_details(int position)
+{
+    if(head == NULL)
+    {
+        printf("\nThere are no patient details are present.\n");
+        return;
+    }
+    if(head->patient_id == position)
+    {
+        printf("\nThere are no patient details present before the first patient field.\n");
+        return;
+    }
+
+    struct node *temp = head, *prev = NULL, *prev_prev = NULL;
+
+    while(temp != NULL && temp->patient_id != position)
+    {
+        prev_prev = prev;
+        prev = temp;
+        temp = temp->next;
+    }
+
+    if(temp == NULL || prev == NULL)
+    {
+        printf("\nSorry cannot delete the patient details.\n");
+        return;
+    }
+
+    if(prev_prev == NULL)
+    {
+        head = prev->next;
+    }
+    else
+    {
+        prev_prev->next = prev->next;
+    }
+    free(prev);
+}
+// Displaying the patient details.
+void display_patient_details()
+{
+    struct node *temp = head;
+
+    if(head == NULL)
+    {
+        printf("\nThere are no patient details are present.\n");
+        return;
+    }
+    printf("\n");
+    printf("\n+===========================================================================================================================================+");
+    printf("\n|  Patient-ID   |      Patient-NAME     |  Patient-AGE  |     Patient-HEIGHT    |     Patient-WEIGHT    |Patient-GENDER| Patient-BLOODGROUP |");
+    printf("\n+===========================================================================================================================================+\n");
+    do
+    {
+        printf("|\t%d\t|\t%s\t|\t%d\t|\t%f\t|\t%f\t|\t%s\t|\t  %s \t|\n",temp->patient_id, temp->patient_name, temp->patient_age, temp->patient_height, temp->patient_weight, temp->patient_gender, temp->patient_bloodgroup);
+        printf("+-------------------------------------------------------------------------------------------------------------------------------------------+\n");
+        temp = temp->next;
+    }while(temp != head);
+
+    printf("\n");
+}
+
+// Doctor details (Using Singly Linked List)
+// Inserting the doctor details at the beginning.
+void insert_at_beginning_doctor_details(int doctor_id, char doctor_name[20], char doctor_gender[2], char doctor_spec[20])
+{
+    struct node *doctor_node = NULL;
+    doctor_node = create_doctor_details(doctor_id, doctor_name, doctor_gender, doctor_spec);
+
+    if(doctor_node != NULL)
+    {
+        doctor_node->next = head;
+        head = doctor_node;
+        printf("\nThe doctor details are added successfully.\n");
+    }
+}
+// Inserting the doctor details at the ending.
+void insert_at_end_doctor_details(int doctor_id, char doctor_name[20], char doctor_gender[2], char doctor_spec[20])
+{
+    struct node *doctor_node = NULL;
+    doctor_node = create_doctor_details(doctor_id, doctor_name, doctor_gender, doctor_spec);
+
+    if(doctor_node != NULL)
+    {
+        if(head == NULL)
+        {
+            head = doctor_node;
+        }
+        else
+        {
+            struct node *last = head;
+
+            while(last->next != NULL)
+            {
+                last = last->next;
+            }
+            last->next = doctor_node;
+        }
+        printf("\nThe doctor details are added successfully.\n");
+    }
+}
+// Inserting the doctor details node after some other doctor details node.
+void insert_after_some_node_doctor_details(int doctor_id, char doctor_name[20], char doctor_gender[2], char doctor_spec[20], int position)
+{
+    struct node *doctor_node = NULL;
+    doctor_node = create_doctor_details(doctor_id, doctor_name, doctor_gender, doctor_spec);
+
+    if(doctor_node != NULL)
+    {
+        if(head == NULL)
+        {
+            insert_at_beginning_doctor_details(doctor_id, doctor_name, doctor_gender, doctor_spec);
+        }
+        else
+        {
+            struct node *temp = head;
+            while(temp->doctor_id != position && temp!=NULL)
+            {
+                temp = temp->next;
+            }
+            if(temp == NULL)
+            {
+                printf("\nSorry! couldn't found the doctor details node. Cannot insert another doctor node.\n");
+            }
+            else
+            {
+                doctor_node->next = temp->next;
+                temp->next = doctor_node;
+                printf("\nDoctor details got added successfully.\n");
+            }
+        }
+    }
+}
+// Inserting the doctor details node before some other doctor details node.
+void insert_before_some_node_doctor_details(int doctor_id, char doctor_name[20], char doctor_gender[2], char doctor_spec[20], int position)
+{
+    struct node *doctor_node = NULL;
+    doctor_node = create_doctor_details(doctor_id, doctor_name, doctor_gender, doctor_spec);
+
+    if(doctor_node != NULL)
+    {
+        if(head == NULL)
+        {
+            insert_at_beginning_doctor_details(doctor_id, doctor_name, doctor_gender, doctor_spec);
+        }
+        else
+        {
+            struct node *temp = head;
+            struct node *prev = NULL;
+
+            while(temp->doctor_id != position && temp!=NULL)
+            {
+                prev = temp;
+                temp = temp->next;
+            }
+            if(temp == NULL)
+            {
+                printf("\nSorry! couldn't found the doctor details node. Cannot insert another doctor node.\n");
+            }
+            else
+            {
+                prev->next = doctor_node;
+                doctor_node->next = temp;
+            }
+        }
+    }
+}
+// Deleting the doctor details at the beginning.
+void delete_at_beginning_doctor_details()
+{
+    if(head == NULL)
+    {
+        printf("\nThere are no doctor details are present.\n");
+        return;
+    }
+    struct node *temp = head;
+    int Doctor_id = temp->doctor_id;
+    head = temp->next;
+    free(temp);
+    printf("\nThe doctor details present at the beginning got deleted successfully, Doctor-ID:%d.",Doctor_id);
+}
+// Deleting the doctor details at the ending.
+void delete_at_end_doctor_details()
+{
+    if(head == NULL)
+    {
+        printf("\nThere are no doctor details are present.\n");
+        return;
+    }
+    struct node *temp = head;
+    struct node *prev = NULL;
+
+    while(temp->next != NULL)
+    {
+        prev = temp;
+        temp = temp->next;
+    }
+    int Doctor_id = temp->doctor_id;
+
+    if(temp == head)
+    {
+        free(temp);
+        head = NULL;
+    }
+    else
+    {
+        free(temp);
+        prev->next = NULL;
+    }
+    printf("\nThe doctor details present at the ending got deleted successfully, Doctor-ID:%d.",Doctor_id);
+}
+// Deleting the doctor details node after some other doctor details node.
+void delete_after_some_node_doctor_details(int position)
+{
+    if(head == NULL)
+    {
+        printf("\nThere are no doctor details are present.\n");
+        return;
+    }
+    else
+    {
+        struct node *temp = head;
+        struct node *prev = NULL;
+
+        while(temp->doctor_id != position && temp!=NULL)
+        {
+            prev = temp;
+            temp = temp->next;
+        }
+        if(temp == NULL || prev == NULL)
+        {
+            printf("\nSorry cannot delete the doctor details.\n");
+        }
+        else
+        {
+            prev = temp;
+            temp = temp->next;
+            prev->next=temp==NULL?NULL:temp->next;
+            free(temp);
+        }
+    }
+}
+// Deleting the doctor details node before some other doctor details node.
+void delete_before_some_node_doctor_details(int position)
+{
+    if(head == NULL)
+    {
+        printf("\nThere are no doctor details are present.\n");
+        return;
+    }
+    if(head->doctor_id == position)
+    {
+        printf("\nThere are no doctor details present before the first doctor field.\n");
+        return;
+    }
+    struct node *temp=head, *prev=NULL, *prev_prev=NULL;
+    while(temp->doctor_id != position && temp!=NULL)
+	{
+		prev_prev=prev;
+		prev=temp;
+		temp=temp->next;
+	}
+	if(temp == NULL || prev == NULL)
+    {
+        printf("\nSorry cannot delete the doctor details.\n");
+        return;
+    }
+    else
+    {
+		prev_prev->next = prev->next;
+	}
+	free(prev);
+}
+// Displaying the doctor details.
+void display_doctor_details()
+{
+    if(head == NULL)
+    {
+        printf("\nThere are no doctor details are present. Please insert the doctor details\n");
+        return;
+    }
+    struct node *temp = head;
+    printf("\n+======================================================================================+");
+    printf("\n| Doctor-ID |          Doctor-NAME          | Doctor-GENDER |   Doctor-SPECIALIZATION  |");
+    printf("\n+======================================================================================+\n");
+    while(temp!=NULL)
+    {
+        printf("|\t%d\t|\t%s\t|\t%s\t|\t%s\t|\n",temp->doctor_id, temp->doctor_name, temp->doctor_gender, temp->doctor_spec);
+        printf("+--------------------------------------------------------------------------------------+\n");
+        temp = temp->next;
+    }
+}
+
+// Appointment details (Using simple Queue)
+struct node *front = NULL;
+struct node *rear = NULL;
+// Inserting the details of the patient for the appointment.
+void insert_appointment_patient_details()
+{
+    struct node *appoint_patient_node;
+    appoint_patient_node = (struct node*)malloc(sizeof(struct node));
+    printf("Enter patient serial no.:");
+    scanf("%d", &appoint_patient_node->patient_sno);
+    printf("Enter patient name:");
+    scanf("%s", appoint_patient_node->name);
+    printf("Enter patient phone number:");
+    scanf("%s",appoint_patient_node->phone_number);
+    printf("Enter patient blood group:");
+    scanf("%s", appoint_patient_node->blood_group);
+    printf("Enter patient illness description:");
+    scanf("%s", appoint_patient_node->describe);
+
+    if((front == NULL)&&(rear == NULL))
+    {
+		front = rear = appoint_patient_node;
+	}
+	else
+    {
+		rear->next = appoint_patient_node;
+		rear = appoint_patient_node;
+	}
+}
+// Deleting the details of the patient for the appointment.
+void delete_appointment_patient_details()
+{
+    struct node *temp;
+	temp = front;
+	if((front == NULL) && (rear == NULL))
+    {
+		printf("\nNo patient is left or No patient has come till now so nothing to delete.\n");
+	}
+	else
+	{
+		front = front->next;
+		free(temp);
+	}
+}
+// Displaying the details of the patient for the appointment.
+void display_appointment_patient_details()
+{
+    struct node *temp;
+	if((front == NULL) && (rear == NULL))
+    {
+		printf("\nNo patient is left or No patient has come till now so nothing to delete.\n");
+	}
+	else
+	{
+		temp = front;
+		printf("\n+===========================================================================================================+");
+        printf("\n|  SR.NO. |  PATIENT NAME   |  PATIENT PHONE NUMBER  |  PATIENT BLOODGROUP  |  PATIENT ILLNESS DESCRIPTION  |");
+        printf("\n+===========================================================================================================+\n");
+		while(temp)
+		{
+			printf("|\t%d\t|\t%s\t|\t%s\t|\t%s\t|\t%s\t|",temp->patient_sno, temp->name, temp->phone_number, temp->blood_group, temp->describe);
+			printf("\n+--------------------------------------------------------+");
+			temp = temp->next;
+		}
+	}
+}
+
+// Main Function
+int main()
+{
+    int user_choice;
+    printf("===========================================================================================\n");
+    printf("**************************** HOSPITAL MANAGEMENT SYSTEM ***********************************\n");
+    printf("===========================================================================================\n");
+    printf("\nWELCOME TO HOSPITAL MANAGEMENT SYSTEM.\n");
+    while(1)
+    {
+        printf("\nPLEASE SELECT THE TABLE YOU WANT TO USE.\n");
+        printf("\n1. PATIENT TABLE.");
+        printf("\n2. DOCTOR TABLE.");
+        printf("\n3. PATIENT APPOINTMENT TABLE.");
+        printf("\n4. EXITING THE PROGRAM.");
+        printf("\n=================================\n");
+        printf("Enter your choice:");
+        scanf("%d",&user_choice);
+
+        switch(user_choice)
+        {
+        case 1:
+            printf("\nPATIENT TABLE\n");
+
+            int ch;
+            int pid;
+            int pos;
+            char pname[20];
+            int page;
+            float pheight;
+            float pweight;
+            char pgender[2];
+            char pbloodgroup[20];
+
+            while(1)
+            {
+                printf("\n1. INSERTING THE PATIENT DETAILS AT THE BEGINNING.\n");
+                printf("\n2. INSERTING THE PATIENT DETAILS AT THE END.\n");
+                printf("\n3. INSERTING THE PATIENT DETAILS AFTER SOME OTHER PATIENT.\n");
+                printf("\n4. INSERTING THE PATIENT DETAILS BEFORE SOME OTHER PATIENT.\n");
+                printf("\n5. DELETING THE PATIENT DETAILS FROM THE BEGINNING.\n");
+                printf("\n6. DELETING THE PATIENT DETAILS FROM THE END.\n");
+                printf("\n7. DELETING THE PATIENT DETAILS AFTER SOME OTHER PATIENT.\n");
+                printf("\n8. DELETING THE PATIENT DETAILS BEFORE SOME OTHER PATIENT.\n");
+                printf("\n9. DISPLAYING THE PATIENT DETAILS.\n");
+                printf("\n10. EXITING THE PATIENT TABLE.\n\n");
+                printf("\n==================================================================\n");
+                printf("\nEnter your choice:");
+                scanf("%d",&ch);
+
+                switch(ch)
+                {
+                case 1:
+                    printf("\nENTER THE PATIENT DETAILS YOU WANT TO INSERT AT THE BEGINNING.\n\n");
+                    printf("Enter the Patient id in the form (for example like 101,102 etc.):");
+                    scanf("%d",&pid);
+                    printf("Enter the Patient name:");
+                    scanf("%s",&pname);
+                    printf("Enter the Patient age(in years):");
+                    scanf("%d",&page);
+                    printf("Enter the Patient height(in cm):");
+                    scanf("%f",&pheight);
+                    printf("Enter the Patient weight(in kg):");
+                    scanf("%f",&pweight);
+                    printf("Enter the Patient Gender (Male : m or M and Female : f or F):");
+                    scanf("%s",&pgender);
+                    printf("Enter the Patient blood group(such as O+ve):");
+                    scanf("%s",&pbloodgroup);
+                    insert_at_beginning_patient_details(pid, pname, page, pheight, pweight, pgender, pbloodgroup);
+                    break;
+
+                case 2:
+                    printf("\nENTER THE PATIENT DETAILS YOU WANT TO INSERT AT THE END.\n\n");
+                    printf("Enter the Patient id in the form (for example like 101,102 etc.):");
+                    scanf("%d",&pid);
+                    printf("Enter the Patient name:");
+                    scanf("%s",&pname);
+                    printf("Enter the Patient age(in years):");
+                    scanf("%d",&page);
+                    printf("Enter the Patient height(in cm):");
+                    scanf("%f",&pheight);
+                    printf("Enter the Patient weight(in kg):");
+                    scanf("%f",&pweight);
+                    printf("Enter the Patient Gender (Male : m or M and Female : f or F):");
+                    scanf("%s",&pgender);
+                    printf("Enter the Patient blood group(such as O+ve):");
+                    scanf("%s",&pbloodgroup);
+                    insert_at_end_patient_details(pid, pname, page, pheight, pweight, pgender, pbloodgroup);
+                    break;
+
+                case 3:
+                    printf("\nENTER THE PATIENT DETAILS YOU WANT TO INSERT AFTER SOME PATIENT.\n");
+                    printf("Enter the patient id after which you want to insert:");
+                    scanf("%d",&pos);
+                    printf("Enter the Patient id in the form (for example like 101,102 etc.):");
+                    scanf("%d",&pid);
+                    printf("Enter the Patient name:");
+                    scanf("%s",&pname);
+                    printf("Enter the Patient age(in years):");
+                    scanf("%d",&page);
+                    printf("Enter the Patient height(in cm):");
+                    scanf("%f",&pheight);
+                    printf("Enter the Patient weight(in kg):");
+                    scanf("%f",&pweight);
+                    printf("Enter the Patient Gender (Male : m or M and Female : f or F):");
+                    scanf("%s",&pgender);
+                    printf("Enter the Patient blood group(such as O+ve):");
+                    scanf("%s",&pbloodgroup);
+                    insert_after_some_node_patient_details(pid, pname, page, pheight, pweight, pgender, pbloodgroup, pos);
+                    break;
+
+                case 4:
+                    printf("\nENTER THE PATIENT DETAILS YOU WANT TO BEFORE AFTER SOME PATIENT.\n");
+                    printf("Enter the patient id before which you want to insert:");
+                    scanf("%d",&pos);
+                    printf("Enter the Patient id in the form (for example like 101,102 etc.):");
+                    scanf("%d",&pid);
+                    printf("Enter the Patient name:");
+                    scanf("%s",&pname);
+                    printf("Enter the Patient age(in years):");
+                    scanf("%d",&page);
+                    printf("Enter the Patient height(in cm):");
+                    scanf("%f",&pheight);
+                    printf("Enter the Patient weight(in kg):");
+                    scanf("%f",&pweight);
+                    printf("Enter the Patient Gender (Male : m or M and Female : f or F):");
+                    scanf("%s",&pgender);
+                    printf("Enter the Patient blood group(such as O+ve):");
+                    scanf("%s",&pbloodgroup);
+                    insert_before_some_node_patient_details(pid, pname, page, pheight, pweight, pgender, pbloodgroup, pos);
+                    break;
+
+                case 5:
+                    delete_at_beginning_patient_details();
+                    break;
+
+                case 6:
+                    delete_at_end_patient_details();
+                    break;
+
+                case 7:
+                    printf("Enter the patient id after which you want to delete the patient details:");
+                    scanf("%d",&pos);
+                    delete_after_some_node_patient_details(pos);
+                    break;
+
+                case 8:
+                    printf("Enter the patient id before which you want to delete the patient details:");
+                    scanf("%d",&pos);
+                    delete_before_some_node_patient_details(pos);
+                    break;
+
+                case 9:
+                    display_patient_details();
+                    break;
+                }
+                if(ch==10)
+                {
+                    printf("Exiting the Patient Table Menu.\n");
+                    break;
+                }
+                printf("\n");
+            }
+            break;
+
+        case 2:
+            printf("\nDOCTOR TABLE\n");
+
+            int choice_user;
+            int docid;
+            int posit;
+            char dname[20];
+            char dgender[2];
+            char dspec[20];
+
+            while(1)
+            {
+                printf("\n1. INSERTING THE DOCTOR DETAILS AT THE BEGINNING.\n");
+                printf("\n2. INSERTING THE DOCTOR DETAILS AT THE END.\n");
+                printf("\n3. INSERTING THE DOCTOR DETAILS AFTER SOME OTHER DOCTOR.\n");
+                printf("\n4. INSERTING THE DOCTOR DETAILS BEFORE SOME OTHER DOCTOR.\n");
+                printf("\n5. DELETING THE DOCTOR DETAILS FROM THE BEGINNING.\n");
+                printf("\n6. DELETING THE DOCTOR DETAILS FROM THE END.\n");
+                printf("\n7. DELETING THE DOCTOR DETAILS AFTER SOME OTHER DOCTOR.\n");
+                printf("\n8. DELETING THE DOCTOR DETAILS BEFORE SOME OTHER DOCTOR.\n");
+                printf("\n9. DISPLAYING THE DOCTOR DETAILS.\n");
+                printf("\n10. EXITING THE PROGRAM\n\n");
+                printf("\n==================================================================\n");
+
+                printf("\nEnter your choice:");
+                scanf("%d", &choice_user);
+
+                switch(choice_user)
+                {
+                case 1:
+                    printf("\nENTER THE DOCTOR DETAILS YOU WANT TO INSERT AT THE BEGINNING.\n\n");
+                    printf("Enter the Doctor id in the form (for example like 101,102 etc.):");
+                    scanf("%d",&docid);
+                    printf("Enter the Doctor Name:");
+                    scanf("%s",&dname);
+                    printf("Enter the Doctor Gender (Male : m or M and Female : f or F):");
+                    scanf("%s",&dgender);
+                    printf("Enter the Doctor specification:");
+                    scanf("%s",&dspec);
+                    insert_at_beginning_doctor_details(docid, dname, dgender, dspec);
+                    break;
+                case 2:
+                    printf("\nENTER THE DOCTOR DETAILS YOU WANT TO INSERT AT THE END.\n\n");
+                    printf("Enter the Doctor id in the form (for example like 101,102 etc.):");
+                    scanf("%d",&docid);
+                    printf("Enter the Doctor Name:");
+                    scanf("%s",&dname);
+                    printf("Enter the Doctor Gender (Male : m or M and Female : f or F):");
+                    scanf("%s",&dgender);
+                    printf("Enter the Doctor specification:");
+                    scanf("%s",&dspec);
+                    insert_at_end_doctor_details(docid, dname, dgender, dspec);
+                    break;
+                case 3:
+                    printf("\nENTER THE DOCTOR DETAILS YOU WANT TO INSERT AFTER SOME DOCTOR.\n");
+                    printf("Enter the doctor id after which you want to insert:");
+                    scanf("%d",&pos);
+                    printf("Enter the Doctor id in the form (for example like 101,102 etc.):");
+                    scanf("%d",&docid);
+                    printf("Enter the Doctor Name:");
+                    scanf("%s",&dname);
+                    printf("Enter the Doctor Gender (Male : m or M and Female : f or F):");
+                    scanf("%s",&dgender);
+                    printf("Enter the Doctor specification:");
+                    scanf("%s",&dspec);
+                    insert_after_some_node_doctor_details(docid, dname, dgender, dspec, posit);
+                    break;
+                case 4:
+                    printf("\nENTER THE DOCTOR DETAILS YOU WANT TO INSERT BEFORE SOME DOCTOR.\n");
+                    printf("Enter the doctor id before which you want to insert:");
+                    scanf("%d",&pos);
+                    printf("Enter the Doctor id in the form (for example like 101,102 etc.):");
+                    scanf("%d",&docid);
+                    printf("Enter the Doctor Name:");
+                    scanf("%s",&dname);
+                    printf("Enter the Doctor Gender (Male : m or M and Female : f or F):");
+                    scanf("%s",&dgender);
+                    printf("Enter the Doctor specification:");
+                    scanf("%s",&dspec);
+                    insert_before_some_node_doctor_details(docid, dname, dgender, dspec, posit);
+                    break;
+                case 5:
+                    delete_at_beginning_doctor_details();
+                    break;
+                case 6:
+                    delete_at_end_doctor_details();
+                    break;
+                case 7:
+                    printf("Enter the doctor id after which you want to delete the doctor details:");
+                    scanf("%d",&pos);
+                    delete_after_some_node_doctor_details(posit);
+                    break;
+                case 8:
+                    printf("Enter the doctor id before which you want to delete the doctor details:");
+                    scanf("%d",&pos);
+                    delete_before_some_node_doctor_details(posit);
+                    break;
+                case 9:
+                    display_doctor_details();
+                    break;
+                }
+                if(choice_user == 10)
+                {
+                    printf("Exiting the doctor Menu.\n");
+                    break;
+                }
+                printf("\n");
+            }
+            break;
+
+        case 3:
+            printf("\nAPPOINTMENT TABLE\n");
+            int choic;
+
+            while(1)
+            {
+                printf("\n1. INSERTING THE DETAILS OF THE PATIENT FOR THE APPOINTMENT.");
+                printf("\n2. DELETING THE DETAILS OF THE PATIENT FOR THE APPOINTMENT.");
+                printf("\n3. DISPLAYING THE DETAILS OF THE PATIENT FOR THE APPOINTMENT.");
+                printf("\n4. EXITING THE PATIENT APPOINTMENT TABLE.");
+                printf("\n=====================================================================\n");
+                printf("\nEnter you choice:");
+                scanf("%d",&choic);
+
+                switch(choic)
+                {
+                case 1:
+                    insert_appointment_patient_details();
+                    break;
+                case 2:
+                    delete_appointment_patient_details();
+                    break;
+                case 3:
+                    display_appointment_patient_details();
+                    break;
+                }
+                if(choic == 4)
+                {
+                    printf("Exiting the Appointment Table Menu.\n");
+                    break;
+                }
+                printf("\n");
+            }
+            break;
+        case 4:
+            printf("\nExiting the Program.\n");
+            printf("\nTHANK YOU FOR USING THE HOSPITAL MANAGEMENT SYSTEM.\n");
+            exit(0);
+        }
+    }
+}
